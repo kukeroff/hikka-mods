@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 @loader.tds
-class yg_actWalletModule(loader.Module):
+class ca_actWalletModule(loader.Module):
     """Активатор для чеков @wallet"""
     strings = {
         "name": "CA_actWallet",
@@ -28,6 +28,6 @@ class yg_actWalletModule(loader.Module):
                 command = f'/start {code}'
                 await message.client.send_message('Wallet', command)
 
-    async def stat_yg_actWalletcmd(self, message):
+    async def stat_ca_actWalletcmd(self, message):
         """проверить работоспособность"""
         await message.edit("<b>Активатор @Wallet работает <emoji document_id=5348140027698227662>🙀</emoji></b>")
