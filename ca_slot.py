@@ -42,7 +42,7 @@ class DiceRollModule(loader.Module):
                 break
             else:
                 await ms.delete()
-    async def 777cmd(self, message):
+    async def семьcmd(self, message):
         """подкрутить слот на 3 семерки"""
         val = 0
         await message.delete()
