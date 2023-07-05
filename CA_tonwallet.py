@@ -6,6 +6,8 @@ from .. import loader, utils
 from telethon.tl import types
 from telethon import errors
 
+__version__ = (1, 3, 1)
+
 @loader.tds
 class TonwalletBalanceModule(loader.Module):
     """Модуль для проверки баланса Tonkeeper/Tonhub (настраивается в конфиге)"""
@@ -78,8 +80,11 @@ class TonwalletBalanceModule(loader.Module):
         if twallet != '':
             wallet = twallet
         else:
+            twallet = self.config["wallet"]
             wallet = self.config["wallet"]
         try:
+            if '.' in wallet:
+                wallet = requests.get(f'https://tonapi.io/v2/dns/{wallet}/resolve').json()['wallet']['address']
             url = f"https://tonapi.io/v2/blockchain/accounts/{wallet}"
             response = requests.get(url).json()
             wbalance = response["balance"]
@@ -90,7 +95,7 @@ class TonwalletBalanceModule(loader.Module):
             if wallet == 'EQC2tC4THShN6jkWlfhYaIAF8pwjtSPbAW1oEaxFWR1SxJet':
                 TON = f"<emoji document_id=5471952986970267163>💎</emoji> <b>Баланс главного кошелька</b> @xJetSwapBot:\n{round(wbalance/1000000000, 4)} TON (≈ {usdton}$)\n"
             else:
-                TON = f"<emoji document_id=5471952986970267163>💎</emoji> <b>Баланс кошелька</b> <code>{wallet}</code>:\n{round(wbalance / 1000000000, 4)} TON (≈ {usdton}$)\n"
+                TON = f"<emoji document_id=5471952986970267163>💎</emoji> <b>Баланс кошелька</b> <code>{twallet}</code>:\n{round(wbalance / 1000000000, 4)} TON (≈ {usdton}$)\n"
             displayjettons = self.config["display_jettons"]
             blockedjettons = self.config["blocked_jettons"]
             if displayjettons == True:
