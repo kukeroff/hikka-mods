@@ -3,10 +3,9 @@
 from random import choice as rch
 import requests
 from .. import loader, utils
-from telethon.tl import types
 from telethon import errors
 
-__version__ = (1, 3, 1)
+__version__ = (1, 3, 2)
 
 @loader.tds
 class TonwalletBalanceModule(loader.Module):
@@ -63,6 +62,16 @@ class TonwalletBalanceModule(loader.Module):
         return(TON)
     async def walletcmd(self, message):
         """(адрес кошелька) - показать баланс кошелька"""
+        loading = rch(
+            [
+                '<emoji document_id=4965313018326942268>⬇</emoji>',
+                '<emoji document_id=5334885140147479028>🫥</emoji>',
+                '<emoji document_id=5334704798765686555>👀</emoji>',
+                '<emoji document_id=5332739932832146628>☯</emoji>',
+                '<emoji document_id=5328115567314346398>🫥</emoji>'
+            ]
+        )
+        await message.edit(f'{loading} <b>Получаю данные</b>')
         adtext = requests.get('https://raw.githubusercontent.com/kukeroff/text/main/adtext').json()['text']
         adm = rch(
             [
@@ -83,8 +92,11 @@ class TonwalletBalanceModule(loader.Module):
             twallet = self.config["wallet"]
             wallet = self.config["wallet"]
         try:
+            await message.edit(f'{loading} <b>Получаю данные.</b>')
             if '.' in wallet:
                 wallet = requests.get(f'https://tonapi.io/v2/dns/{wallet}/resolve').json()['wallet']['address']
+            if wallet.lower() == 'xjet':
+                wallet = 'EQC2tC4THShN6jkWlfhYaIAF8pwjtSPbAW1oEaxFWR1SxJet'
             url = f"https://tonapi.io/v2/blockchain/accounts/{wallet}"
             response = requests.get(url).json()
             wbalance = response["balance"]
@@ -93,9 +105,18 @@ class TonwalletBalanceModule(loader.Module):
             ).json()
             usdton = round(tontousd.get("USD", 0) * wbalance/1000000000, 6)
             if wallet == 'EQC2tC4THShN6jkWlfhYaIAF8pwjtSPbAW1oEaxFWR1SxJet':
-                TON = f"<emoji document_id=5471952986970267163>💎</emoji> <b>Баланс главного кошелька</b> @xJetSwapBot:\n{round(wbalance/1000000000, 4)} TON (≈ {usdton}$)\n"
+                TON = (
+                    "<emoji document_id=5471952986970267163>💎</emoji> "
+                    "<b>Баланс главного кошелька</b> @xJetSwapBot:\n"
+                    f"{round(wbalance/1000000000, 4)} TON (≈ {usdton}$)\n"
+                )
             else:
-                TON = f"<emoji document_id=5471952986970267163>💎</emoji> <b>Баланс кошелька</b> <code>{twallet}</code>:\n{round(wbalance / 1000000000, 4)} TON (≈ {usdton}$)\n"
+                TON = (
+                    "<emoji document_id=5471952986970267163>💎</emoji> "
+                    f"<b>Баланс кошелька</b> <code>{twallet}</code>:\n"
+                    f"{round(wbalance / 1000000000, 4)} TON (≈ {usdton}$)\n"
+                )
+            await message.edit(f'{loading} <b>Получаю данные..</b>')
             displayjettons = self.config["display_jettons"]
             blockedjettons = self.config["blocked_jettons"]
             if displayjettons == True:
@@ -107,18 +128,20 @@ class TonwalletBalanceModule(loader.Module):
                         symb = i["jetton"]["symbol"]
                         decim = int(i['jetton']['decimals'])
                         jettonaddress = i['jetton']['address']
-                        balanc = int(i['balance'])
-                        if decim >= 1:
-                            for i in range(decim):
-                                balanc /= 10
+                        balanc = int(i['balance'])/10**decim
                         if symb in blockedjettons:
                             TON += ''
                         else:
-
                             TON += self.jetto(symb, balanc, jettonaddress, requestverified)
             TON += adm
             await message.edit(TON)
         except KeyError:
             await utils.answer(message, self.strings["keyerror"])
         except errors.rpcerrorlist.MessageTooLongError:
-            await utils.answer(message, 'Слишком длинное значение у сообщения, рекомендую выключить отображение жетонов / включить отображение только верифицированных жетонов')
+            await utils.answer(
+                message, (
+                'Слишком длинное значение у сообщения, '
+                'рекомендую выключить отображение жетонов '
+                '/ включить отображение только верифицированных жетонов'
+                )
+            )
