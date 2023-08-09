@@ -78,7 +78,7 @@ class rocketSwapModule(loader.Module):
                         }
                     order = r.post('https://trade.ton-rocket.com/orders', data=data, headers=header).json()
                     form = ''
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(1.5)
                     print(order)
                     orders = r.get(f'https://trade.ton-rocket.com/orders/{order["data"]["orderId"]}', headers=header).json()
                     print(orders)
@@ -88,15 +88,26 @@ class rocketSwapModule(loader.Module):
                             a = r.get('https://raw.githubusercontent.com/kukeroff/text/main/adtext').json()['text']
                         else:
                             a = ''
-                        form += (
-                            '<emoji document_id=5021905410089550576>✅</emoji> '
-                            'Успешно создал ордер:\n'
-                            f'\nАйди: {order["data"]["orderId"]};'
-                            f'\nТип: {order["data"]["type"]};'
-                            f'\nПара: {order["data"]["pair"]};'
-                            f'\nВыполнен на {orders["data"]["filled"]}%;'
-                            f'\nПродано {order["data"]["mainAmount"]-orders["data"]["balance"]["mainAmount"]} {token}.{a}'
-                        )
+                        if type == 'BUY':
+                            form += (
+                                '<emoji document_id=5021905410089550576>✅</emoji> '
+                                'Успешно создал ордер:\n'
+                                f'\nАйди: {order["data"]["orderId"]};'
+                                f'\nТип: {order["data"]["type"]};'
+                                f'\nПара: {order["data"]["pair"]};'
+                                f'\nВыполнен на {orders["data"]["filled"]}%;'
+                                f'\nКуплено на {order["data"]["secondaryAmount"]-orders["data"]["balance"]["secondaryAmount"]} TONCOIN.{a}'
+                            )
+                        else:
+                            form += (
+                                '<emoji document_id=5021905410089550576>✅</emoji> '
+                                'Успешно создал ордер:\n'
+                                f'\nАйди: {order["data"]["orderId"]};'
+                                f'\nТип: {order["data"]["type"]};'
+                                f'\nПара: {order["data"]["pair"]};'
+                                f'\nВыполнен на {orders["data"]["filled"]}%;'
+                                f'\nПродано {order["data"]["mainAmount"]-orders["data"]["balance"]["mainAmount"]} {token}.{a}'
+                            )
                     else:
                         for i in orders['errors']:
                             form += f'\nОшибка:\n> {i["error"]}'
