@@ -60,17 +60,28 @@ class rocketSwapModule(loader.Module):
                     type = type.upper()
                     amount = float(amount)
                     header = {'Rocket-Exchange-Key': key}
-                    data = {
-                        "pair": f"{str(token)}-TONCOIN",
-                        "type": type,
-                        "executeType": "MARKET",
-                        "amount": amount,
-                        "currency": str(token)
-                    }
+                    if type == 'BUY':
+                        data = {
+                            "pair": f"{str(token)}-TONCOIN",
+                            "type": type,
+                            "executeType": "MARKET",
+                            "amount": amount,
+                            "currency": 'TONCOIN'
+                        }
+                    else:
+                        data = {
+                            "pair": f"{str(token)}-TONCOIN",
+                            "type": type,
+                            "executeType": "MARKET",
+                            "amount": amount,
+                            "currency": str(token)
+                        }
                     order = r.post('https://trade.ton-rocket.com/orders', data=data, headers=header).json()
                     form = ''
                     await asyncio.sleep(1)
+                    print(order)
                     orders = r.get(f'https://trade.ton-rocket.com/orders/{order["data"]["orderId"]}', headers=header).json()
+                    print(orders)
                     if order['success']:
                         adm = random.randint(1,6)
                         if adm == 1:
@@ -92,6 +103,6 @@ class rocketSwapModule(loader.Module):
                     await utils.answer(message, form)
             except ValueError:
                 await utils.answer(message, 'Недостаточно аргументов.')
-            except Exception as err:
+            except FloatingPointError as err:
                 await utils.answer(message, 'Произошла какая-то ошибка, информацию отправил в консоль.')
                 print(err)
