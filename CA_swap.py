@@ -79,9 +79,7 @@ class rocketSwapModule(loader.Module):
                     order = r.post('https://trade.ton-rocket.com/orders', data=data, headers=header).json()
                     form = ''
                     await asyncio.sleep(1.5)
-                    print(order)
                     orders = r.get(f'https://trade.ton-rocket.com/orders/{order["data"]["orderId"]}', headers=header).json()
-                    print(orders)
                     if order['success']:
                         adm = random.randint(1,6)
                         if adm == 1:
