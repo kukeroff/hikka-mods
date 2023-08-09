@@ -6,6 +6,7 @@ import random
 import requests as r
 from .. import loader, utils
 
+__version__ = (1, 0, 0)
 
 @loader.tds
 class rocketSwapModule(loader.Module):
