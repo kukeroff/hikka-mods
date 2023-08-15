@@ -110,8 +110,8 @@ class rocketSwapModule(loader.Module):
                         for i in orders['errors']:
                             form += f'\nОшибка:\n> {i["error"]}'
                     await utils.answer(message, form)
-            except ValueError:
+            except (ValueError, KeyError):
                 await utils.answer(message, 'Недостаточно аргументов.')
-            except FloatingPointError as err:
+            except Exception as err:
                 await utils.answer(message, 'Произошла какая-то ошибка, информацию отправил в консоль.')
                 print(err)
